@@ -9,10 +9,14 @@
 ### ✅ Claim 1 (VERIFIED): QEMU 2.8.0 `qemu64` 缺 AVX2/FMA/BMI
 
 **Source URL**:
-- https://github.com/qemu/qemu/blob/v2.8.0/target-i386/cpu.c (lines 735-753)
+- https://github.com/qemu/qemu/blob/v2.8.0/target-i386/cpu.c (lines 735-753, qemu64 struct)
 - https://raw.githubusercontent.com/qemu/qemu/v2.8.0/target-i386/cpu.c
 
 **注意路径是 `target-i386/`（连字符），不是 `target/i386/`（斜杠）** —— 后者 404。
+
+**QEMU v2.8.0 tag SHA**: `ddc4bc4835c22e999877bf883bc9ca807c948086`（gca 验证：https://github.com/qemu/qemu/releases/tag/v2.8.0）
+
+注意：很多文章引用 `0737f32...` SHA 是不准确的，请以 GitHub release 页面为准。
 
 **关键引用（cpu.c 行 735-753）**:
 
@@ -31,7 +35,11 @@
 // 没有 CPUID_EXT_AVX / CPUID_EXT_FMA 任何位
 ```
 
-`PPRO_FEATURES`（cpu.c 行 191-194）= Intel Pentium Pro 1995 的特性集。
+`PPRO_FEATURES`（cpu.c 行 191-194）= Intel Pentium Pro 1995 的特性集，定义为:
+
+```c
+#define PPRO_FEATURES  (CPUID_FP | CPUID_DE | CPUID_PSE | ...)
+```
 
 **含义**: qemu64 ≈ Intel 2003 年前的 CPU（仅 SSE3）。任何用 `-march=x86-64-v3`（Haswell+ ISA：AVX2/FMA/BMI1/BMI2）编译的 glibc 会 SIGILL，触发点正好是 ld-linux-x86-64.so.2（动态链接器）。
 
